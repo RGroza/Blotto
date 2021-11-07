@@ -39,7 +39,7 @@ const void **gmap_keys(gmap *m);
 void gmap_destroy(gmap *m);
 
 size_t gmap_compute_index(const void *key, size_t (*hash)(const void *), size_t num_chains);
-gmap_node *gmap_table_find_key(const gmap *m, const void *key);
+gmap_node **gmap_table_find_key(const gmap *m, const void *key);
 void gmap_table_add(gmap_node **table, gmap_node *n, size_t (*hash)(const void *), size_t num_chains);
 void gmap_embiggen(gmap *m, size_t n);
 
@@ -81,15 +81,22 @@ size_t gmap_compute_index(const void *key, size_t (*hash)(const void *), size_t 
 }
 
 
-gmap_node *gmap_table_find_key(const gmap *m, const void *key)
+gmap_node **gmap_table_find_key(const gmap *m, const void *key)
 {
     size_t i = gmap_compute_index(key, m->hash, m->num_chains);
     gmap_node *curr = m->table[i];
+    gmap_node *prev = curr;
     while (curr != NULL && m->comp(curr->key, key) != 0)
     {
+        prev = curr;
         curr = curr->next;
     }
-    return curr;
+
+    gmap_node **nodes = malloc(sizeof(gmap_node) * 2);
+    nodes[0] = prev;
+    nodes[1] = curr;
+
+    return nodes;
 }
 
 
@@ -146,7 +153,7 @@ bool gmap_contains_key(const gmap *m, const void *key)
         return false;
     }
 
-    return gmap_table_find_key(m, key) != NULL;
+    return gmap_table_find_key(m, key)[1] != NULL;
 }
 
 
@@ -157,7 +164,7 @@ void *gmap_get(gmap *m, const void *key)
         return NULL;
     }
 
-    gmap_node *n = gmap_table_find_key(m, key);
+    gmap_node *n = gmap_table_find_key(m, key)[1];
     if (n != NULL)
     {
         return n->value;
@@ -176,7 +183,7 @@ void *gmap_put(gmap *m, const void *key, void *value)
         return false;
     }
 
-    gmap_node *n = gmap_table_find_key(m, key);
+    gmap_node *n = gmap_table_find_key(m, key)[1];
     if (n != NULL)
     {
         void *old_value = n->value;
@@ -262,4 +269,19 @@ void gmap_destroy(gmap *m)
 
     free(m->table);
     free(m);
+}
+
+
+void *gmap_remove(gmap *m, const void *key)
+{
+    gmap_node **targets = gmap_table_find_key(m, key);
+
+    targets[0]->next = targets[1]->next;
+    free(targets[1]);
+}
+
+
+const void **gmap_keys(gmap *m)
+{
+    return 0;
 }
