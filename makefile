@@ -7,7 +7,7 @@ GmapUnit: gmap_unit.o gmap.o gmap_test_functions.o string_key.o
 	$(CC) $(CFLAGS) -o $@ -g $^ -lm
 
 Blotto: blotto.o gmap.o
-	$(CC) -o $@ -g $^ $(CFLAGS) -lm
+	$(CC) $(CFLAGS) -o $@ -g $^ -lm
 
 blotto.o: blotto.c
 gmap.o: gmap.c gmap.h
