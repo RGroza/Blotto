@@ -127,33 +127,33 @@ void gmap_table_add(gmap_node **table, gmap_node *n, size_t (*hash)(const void *
 void gmap_embiggen(gmap *m, size_t n)
 {
     gmap_node **old_table;
-    size_t old_size;
+    size_t old_cap;
     gmap_node *curr_node;
     gmap_node *next_node;
 
     old_table = m->table;
-    old_size = m->size;
+    old_cap = m->num_chains;
 
-    m->size *= TABLESIZE_MULTIPLIER;
-    m->table = malloc(sizeof(*(m->table)) * m->size);
+    m->num_chains = n;
+    m->table = malloc(sizeof(gmap_node *) * m->num_chains);
     if (m->table == NULL)
     {
         m->table = old_table;
-        m->size = old_size;
+        m->num_chains = old_cap;
         return;
     }
 
-    for (int i = 0; i < m->size; i++)
+    for (int i = 0; i < m->num_chains; i++)
     {
         m->table[i] = NULL;
     }
 
-    for (int i = 0; i < old_size; i++)
+    for (int i = 0; i < old_cap; i++)
     {
-        for (curr_node = old_table[i]; curr_node !=NULL; curr_node = next_node)
+        for (curr_node = old_table[i]; curr_node != NULL; curr_node = next_node)
         {
             next_node = curr_node->next;
-            gmap_table_add(old_table, curr_node, m->hash, m->num_chains);
+            gmap_table_add(m->table, curr_node, m->hash, m->num_chains);
         }
     }
 
@@ -221,7 +221,7 @@ void *gmap_put(gmap *m, const void *key, void *value)
 
             if (m->size >= m->num_chains)
             {
-                gmap_embiggen(m, m->num_chains * 2);
+                gmap_embiggen(m, m->num_chains * TABLESIZE_MULTIPLIER);
             }
 
             gmap_node *n = malloc(sizeof(gmap_node));

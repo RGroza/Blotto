@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/GMapUnit",
-            "args": ["11"],
+            "args": ["12"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
