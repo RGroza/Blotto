@@ -89,17 +89,25 @@ gmap_node **gmap_table_find_key(const gmap *m, const void *key)
     gmap_node *curr = m->table[i];
     gmap_node *prev = curr;
 
-    while (curr != NULL)
+    gmap_node **nodes = malloc(sizeof(gmap_node *) * 2);
+
+    if (curr != NULL && m->comp(curr->key, key) == 0)
     {
-        if (curr->key != NULL && m->comp(curr->key, key) == 0)
+        prev = NULL;
+    }
+    else
+    {
+        while (curr != NULL)
         {
-            break;
+            if (curr->key != NULL && m->comp(curr->key, key) == 0)
+            {
+                break;
+            }
+            prev = curr;
+            curr = curr->next;
         }
-        prev = curr;
-        curr = curr->next;
     }
 
-    gmap_node **nodes = malloc(sizeof(gmap_node *) * 2);
     nodes[0] = prev;
     nodes[1] = curr;
 
@@ -295,15 +303,22 @@ void *gmap_remove(gmap *m, const void *key)
 
     void *val = targets[1]->value;
     gmap_node *next = targets[1]->next;
-    gmap_node *prev = targets[0];
+
+    if (targets[0] != NULL)
+    {
+        targets[0]->next = next;
+    }
+    else
+    {
+        size_t i = gmap_compute_index(key, m->hash, m->num_chains);
+        m->table[i] = NULL;
+    }
+
+    m->f(targets[1]->key);
     free(targets[1]);
-
-    targets[0]->next = next;
-    m->size--;
-
-    targets[0] = NULL;
-    targets[1] = NULL;
     free(targets);
+
+    m->size--;
 
     return val;
 }
