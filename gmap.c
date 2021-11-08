@@ -302,16 +302,23 @@ void *gmap_remove(gmap *m, const void *key)
     }
 
     void *val = targets[1]->value;
-    gmap_node *next = targets[1]->next;
+    gmap_node *curr = targets[1];
+    gmap_node *prev = targets[0];
 
     if (targets[0] != NULL)
     {
-        targets[0]->next = next;
+        targets[0]->next = targets[1]->next;
     }
     else
     {
-        size_t i = gmap_compute_index(key, m->hash, m->num_chains);
-        m->table[i] = NULL;
+        if (targets[1]->next == NULL)
+        {
+            m->table[gmap_compute_index(key, m->hash, m->num_chains)] = NULL;
+        }
+        else
+        {
+            m->table[gmap_compute_index(key, m->hash, m->num_chains)] = targets[1]->next;
+        }
     }
 
     m->f(targets[1]->key);
