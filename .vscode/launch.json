@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "gcc - Build and debug active file",
+            "name": "GDB",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/../GMapUnit",
+            "program": "${workspaceFolder}/GMapUnit",
             "args": ["9"],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}/../",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",

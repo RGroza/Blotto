@@ -25,6 +25,7 @@ struct _gmap
     size_t (*hash)(const void *);
     void *(*cp)(const void *);
     int (*comp)(const void *, const void *);
+    void (*f)(void *);
 };
 
 
@@ -50,9 +51,10 @@ gmap *gmap_create(void *(*cp)(const void *), int (*comp)(const void *, const voi
     if (result != NULL)
     {
         result->size = 0;
-        result->hash = h;
         result->cp = cp;
         result->comp = comp;
+        result->hash = h;
+        result->f = f;
         result->table = malloc(sizeof(gmap_node *) * GMAP_INITIAL_CAPACITY);
         result->num_chains = (result->table != NULL ? GMAP_INITIAL_CAPACITY : 0);
         for (size_t i = 0; i < result->num_chains; i++)
@@ -86,13 +88,18 @@ gmap_node **gmap_table_find_key(const gmap *m, const void *key)
     size_t i = gmap_compute_index(key, m->hash, m->num_chains);
     gmap_node *curr = m->table[i];
     gmap_node *prev = curr;
-    while (curr != NULL && m->comp(curr->key, key) != 0)
+
+    while (curr != NULL)
     {
+        if (curr->key != NULL && m->comp(curr->key, key) == 0)
+        {
+            break;
+        }
         prev = curr;
         curr = curr->next;
     }
 
-    gmap_node **nodes = malloc(sizeof(gmap_node) * 2);
+    gmap_node **nodes = malloc(sizeof(gmap_node *) * 2);
     nodes[0] = prev;
     nodes[1] = curr;
 
@@ -153,7 +160,13 @@ bool gmap_contains_key(const gmap *m, const void *key)
         return false;
     }
 
-    return gmap_table_find_key(m, key)[1] != NULL;
+    gmap_node **targets = gmap_table_find_key(m, key);
+    gmap_node *curr = targets[1];
+    targets[0] = NULL;
+    targets[1] = NULL;
+    free(targets);
+
+    return curr != NULL;
 }
 
 
@@ -257,7 +270,7 @@ void gmap_destroy(gmap *m)
         gmap_node *curr = m->table[i];
         while (curr != NULL)
         {
-            free(curr->key);
+            m->f(curr->key);
 
             gmap_node *next = curr->next;
 
@@ -275,9 +288,24 @@ void gmap_destroy(gmap *m)
 void *gmap_remove(gmap *m, const void *key)
 {
     gmap_node **targets = gmap_table_find_key(m, key);
+    if (targets[1] == NULL)
+    {
+        return NULL;
+    }
 
-    targets[0]->next = targets[1]->next;
+    void *val = targets[1]->value;
+    gmap_node *next = targets[1]->next;
+    gmap_node *prev = targets[0];
     free(targets[1]);
+
+    targets[0]->next = next;
+    m->size--;
+
+    targets[0] = NULL;
+    targets[1] = NULL;
+    free(targets);
+
+    return val;
 }
 
 
