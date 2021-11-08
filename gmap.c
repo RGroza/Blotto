@@ -333,5 +333,29 @@ void *gmap_remove(gmap *m, const void *key)
 
 const void **gmap_keys(gmap *m)
 {
-    return 0;
+    const void **keys = malloc(sizeof(void *) * m->size);
+
+    if (m == NULL || keys == NULL)
+    {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < m->size; i++)
+    {
+        keys[i] = NULL;
+    }
+
+    size_t curr_i = 0;
+    for (size_t chain = 0; chain < m->num_chains; chain++)
+    {
+        gmap_node *curr = m->table[chain];
+        while (curr != NULL)
+	    {
+	        keys[curr_i] = curr->key;
+	        curr = curr->next;
+            curr_i++;
+	    }
+    }
+
+    return keys;
 }
