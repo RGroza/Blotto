@@ -235,7 +235,7 @@ void *gmap_put(gmap *m, const void *key, void *value)
             }
             else
             {
-                free(copy);
+                m->f(copy);
                 return "error";
             }
         }

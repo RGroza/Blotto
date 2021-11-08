@@ -1,9 +1,9 @@
 CC = gcc
 CFLAGS = -std=c99 -pedantic -g3
 
-all: GMapUnit
+all: GmapUnit
 
-GMapUnit: gmap_unit.o gmap.o gmap_test_functions.o string_key.o
+GmapUnit: gmap_unit.o gmap.o gmap_test_functions.o string_key.o
 	$(CC) $(CFLAGS) -o $@ -g $^ -lm
 
 #Blotto: blotto.o gmap.o
