@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "gmap.h"
 #include "entry.h"
 #include "string_key.h"
@@ -39,6 +40,46 @@ void player_destroy(player *pl)
         pl->distribution = NULL;
         free(pl);
         pl = NULL;
+    }
+}
+
+
+int player_comp_wins(const void *player_1, const void *player_2)
+{
+    player *pl_1 = (player *) player_1;
+    player *pl_2 = (player *) player_2;
+
+    if (pl_1->wins - pl_2->wins > 0)
+    {
+        return 1;
+    }
+    else if (pl_1->wins - pl_2->wins < 0)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+int player_comp_scores(const void *player_1, const void *player_2)
+{
+    player *pl_1 = (player *) player_1;
+    player *pl_2 = (player *) player_2;
+
+    if (pl_1->score - pl_2->score > 0)
+    {
+        return 1;
+    }
+    else if (pl_1->score - pl_2->score < 0)
+    {
+        return -1;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -88,15 +129,13 @@ int main(int argc, char *argv[])
 
         if (num_entries > 0)
         {
-            if (curr_battle != num_battles)
+            if (curr_battle != num_battles) // Mismatch in number of battlefields, exit
             {
-                return 0; // Mismatch in number of battlefields, exit
+                fprintf(stderr, "Blotto: Mismatched number of battlefields in file\n");
+                return 0;
             }
         }
-        else
-        {
-            num_battles = curr_battle;
-        }
+        curr_battle = 0;
     }
 
 
@@ -139,6 +178,9 @@ int main(int argc, char *argv[])
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
 
+    fclose(entries_file);
+    fclose(matchups_file);
+
 
     // Playing Blotto matches
     for (int i = 0; i < num_matches; i++)
@@ -175,5 +217,31 @@ int main(int argc, char *argv[])
         {
             player2->wins++;
         }
+    }
+
+    const void **player_keys = gmap_keys(player_map);
+
+    if (strcmp(argv[2], "win") == 0)
+    {
+        qsort(player_keys, num_entries, sizeof(*player_keys), player_comp_wins);
+        for (int key = 0; key < num_entries; key++)
+        {
+            player *pl = gmap_get(player_map, player_keys[key]);
+            printf("%lf.3f %p\n", pl->wins / num_battles, player_keys[key]);
+        }
+    }
+    else if (strcmp(argv[2], "score") == 0)
+    {
+        qsort(player_keys, num_entries, sizeof(*player_keys), player_comp_scores);
+        for (int key = 0; key < num_entries; key++)
+        {
+            player *pl = gmap_get(player_map, player_keys[key]);
+            printf("%lf.3f %p\n", pl->score / num_battles, player_keys[key]);
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Blotto: invalid argument (not win or score)\n");
+        return 0;
     }
 }

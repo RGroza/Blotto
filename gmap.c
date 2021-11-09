@@ -13,7 +13,7 @@ typedef struct _gmap_node
     void *key;
     void *value;
     struct _gmap_node *next;
-    void *(*cp)(const void *);
+    // void *(*cp)(const void *);
 } gmap_node;
 
 struct _gmap
