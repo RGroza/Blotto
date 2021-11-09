@@ -93,6 +93,10 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    printf("%d\n", argc);
+    printf("%s\n", argv[1]);
+    printf("%s\n", argv[argc - 1]);
+
     FILE *matchups_file = fopen(argv[1], "r");
     FILE *entries_file = fopen(argv[argc - 1], "r");
 
