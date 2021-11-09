@@ -10,6 +10,38 @@ typedef struct _match
     char *p2_id;
 } match;
 
+typedef struct _player
+{
+    int *distribution;
+    double score;
+    double wins;
+} player;
+
+#define BUFFER_SIZE 1000
+
+
+player *player_create(int *dist)
+{
+    player *result = malloc(sizeof(player));
+    result->distribution = dist;
+    result->score = 0;
+    result->wins = 0;
+
+    return result;
+}
+
+
+void player_destroy(player *pl)
+{
+    if (pl != NULL)
+    {
+        free(pl->distribution);
+        pl->distribution = NULL;
+        free(pl);
+        pl = NULL;
+    }
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -31,17 +63,16 @@ int main(int argc, char *argv[])
 
 
     // Reading over file to determine total number of entries and checking number of battlefields in each entry
-    char *entry_line;
+    char str[BUFFER_SIZE];
     char *ch;
-    size_t len = 0;
 
     int num_entries = 0;
     int num_battlefields = 0;
     int curr_battlefields = 0;
 
-    while (getline(&entry_line, &len, entries_file) != -1)
+    while (fgets(str, BUFFER_SIZE, entries_file))
     {
-        for (ch = entry_line; *ch != '\0'; ch++)
+        for (ch = str; *ch != '\0'; ch++)
         {
             if (*ch == ',')
             {
@@ -65,51 +96,54 @@ int main(int argc, char *argv[])
 
 
     // Creating map and reading over file to add entries to hash table
-    gmap *map = gmap_create(duplicate, compare_keys, hash29, free);
-
-    *entry_line = NULL;
-    *ch = NULL;
-    size_t len = 0;
+    gmap *player_map = gmap_create(duplicate, compare_keys, hash29, free);
     int id_len = 0;
 
-    while (getline(&entry_line, &len, entries_file) != -1)
+    while (fgets(str, BUFFER_SIZE, entries_file))
     {
-        for (ch = entry_line; *ch != ','; ch++)
+        for (ch = str; *ch != ','; ch++)
         {
             id_len++;
         }
 
-        entry new_entry = entry_read(entries, id_len, num_battlefields);
-        gmap_put(map, new_entry.id, new_entry.distribution);
+        entry new_entry = entry_read(entries_file, id_len, num_battlefields);
+        player *new_player = player_create(new_entry.distribution);
+        gmap_put(player_map, new_entry.id, new_player);
 
         id_len = 0;
     }
 
 
     // Reading matchups
-    *entry_line = NULL;
-    *ch = NULL;
-    size_t len = 0;
-    int num_matchups = 0;
+    int num_matches = 0;
 
-    while (getline(&entry_line, &len, entries_file) != -1)
+    while (fgets(str, BUFFER_SIZE, matchups_file))
     {
-        num_matchups++;
+        num_matches++;
     }
 
-    match *match_results = malloc(sizeof(match) * num_matchups);
+    match *matches = malloc(sizeof(match) * num_matches);
     char *p1_str = malloc(sizeof(p1_str));
     char *p2_str = malloc(sizeof(p2_str));
 
     int scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
-    for (int curr_match; scan != EOF; curr_match++)
+    for (int i = 0; scan != EOF; i++)
     {
-        match new_match = {p1_str, p2_str}
-        match_results[curr_match] = new_match;
+        match new_match = {p1_str, p2_str};
+        matches[i] = new_match;
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
 
 
     // Playing Blotto matches
-    // for (int curr_match)
+    for (int i = 0; i < num_matches; i++)
+    {
+        player *player1 = gmap_get(player_map, matches[i].p1_id);
+        player *player2 = gmap_get(player_map, matches[i].p2_id);
+
+        for (int battle = 0; battle < num_battlefields; battle++)
+        {
+            
+        }
+    }
 }
