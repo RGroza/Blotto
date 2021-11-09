@@ -146,9 +146,34 @@ int main(int argc, char *argv[])
         player *player1 = gmap_get(player_map, matches[i].p1_id);
         player *player2 = gmap_get(player_map, matches[i].p2_id);
 
+        double p1_score = 0;
+        double p2_score = 0;
         for (int battle = 0; battle < num_battles; battle++)
         {
-            
+            if (player1->distribution[battle] > player2->distribution[battle])
+            {
+                p1_score += battle_values[battle];
+            }
+            else if (player1->distribution[battle] < player2->distribution[battle])
+            {
+                p2_score += battle_values[battle];
+            }
+            else
+            {
+                p1_score += battle_values[battle] / 2;
+                p2_score += battle_values[battle] / 2;
+            }
+        }
+        player1->score += p1_score;
+        player2->score += p2_score;
+
+        if (p1_score > p2_score)
+        {
+            player1->wins++;
+        }
+        else if (p2_score > p1_score)
+        {
+            player2->wins++;
         }
     }
 }
