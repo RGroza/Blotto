@@ -61,14 +61,19 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    int num_battles = argc - 2;
+    int battle_values[num_battles];
+    for (int i = 1; i < argc - 1; i++)
+    {
+        battle_values[i] = atoi(argv[i]);
+    }
 
     // Reading over file to determine total number of entries and checking number of battlefields in each entry
     char str[BUFFER_SIZE];
     char *ch;
 
     int num_entries = 0;
-    int num_battlefields = 0;
-    int curr_battlefields = 0;
+    int curr_battle = 0;
 
     while (fgets(str, BUFFER_SIZE, entries_file))
     {
@@ -76,21 +81,21 @@ int main(int argc, char *argv[])
         {
             if (*ch == ',')
             {
-                curr_battlefields++;
+                curr_battle++;
             }
         }
         num_entries++;
 
         if (num_entries > 0)
         {
-            if (curr_battlefields != num_battlefields)
+            if (curr_battle != num_battles)
             {
                 return 0; // Mismatch in number of battlefields, exit
             }
         }
         else
         {
-            num_battlefields = curr_battlefields;
+            num_battles = curr_battle;
         }
     }
 
@@ -106,7 +111,7 @@ int main(int argc, char *argv[])
             id_len++;
         }
 
-        entry new_entry = entry_read(entries_file, id_len, num_battlefields);
+        entry new_entry = entry_read(entries_file, id_len, num_battles);
         player *new_player = player_create(new_entry.distribution);
         gmap_put(player_map, new_entry.id, new_player);
 
@@ -141,7 +146,7 @@ int main(int argc, char *argv[])
         player *player1 = gmap_get(player_map, matches[i].p1_id);
         player *player2 = gmap_get(player_map, matches[i].p2_id);
 
-        for (int battle = 0; battle < num_battlefields; battle++)
+        for (int battle = 0; battle < num_battles; battle++)
         {
             
         }
