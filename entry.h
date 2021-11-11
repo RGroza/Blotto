@@ -28,7 +28,7 @@ typedef struct entry
  * @param max_id, a positive integer
  * @param battlefields a positive integer
  */
-entry entry_read(FILE *in, int max_id, int battlefields);
+entry entry_read(char *in, int max_id, int battlefields);
 
 /**
  * Frees the id and distribution in the given entry.

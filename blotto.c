@@ -16,6 +16,7 @@ typedef struct _player
     int *distribution;
     double score;
     double wins;
+    int battles;
 } player;
 
 #define BUFFER_SIZE 1000
@@ -27,6 +28,7 @@ player *player_create(int *dist)
     result->distribution = dist;
     result->score = 0;
     result->wins = 0;
+    result->battles = 0;
 
     return result;
 }
@@ -93,24 +95,19 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    printf("%d\n", argc);
-    printf("%s\n", argv[1]);
-    printf("%s\n", argv[argc - 1]);
-
     FILE *matchups_file = fopen(argv[1], "r");
-    FILE *entries_file = fopen(argv[argc - 1], "r");
 
-    if (matchups_file == NULL || entries_file == NULL)
+    if (matchups_file == NULL)
     {
         fprintf(stderr, "Blotto: could not open file(s)\n");
         return 0;
     }
 
-    int num_battles = argc - 2;
+    int num_battles = argc - 3;
     int battle_values[num_battles];
-    for (int i = 1; i < argc - 1; i++)
+    for (int i = 0; i < num_battles; i++)
     {
-        battle_values[i] = atoi(argv[i]);
+        battle_values[i] = atoi(argv[i + 3]);
     }
 
     // Reading over file to determine total number of entries and checking number of battlefields in each entry
@@ -120,7 +117,7 @@ int main(int argc, char *argv[])
     int num_entries = 0;
     int curr_battle = 0;
 
-    while (fgets(str, BUFFER_SIZE, entries_file))
+    while (fgets(str, BUFFER_SIZE, stdin))
     {
         for (ch = str; *ch != '\0'; ch++)
         {
@@ -133,11 +130,11 @@ int main(int argc, char *argv[])
 
         if (num_entries > 0)
         {
-            if (curr_battle != num_battles) // Mismatch in number of battlefields, exit
-            {
-                fprintf(stderr, "Blotto: Mismatched number of battlefields in file\n");
-                return 0;
-            }
+            // if (curr_battle != num_battles) // Mismatch in number of battlefields, exit
+            // {
+            //     fprintf(stderr, "Blotto: Mismatched number of battlefields in file\n");
+            //     return 0;
+            // }
         }
         curr_battle = 0;
     }
@@ -147,14 +144,15 @@ int main(int argc, char *argv[])
     gmap *player_map = gmap_create(duplicate, compare_keys, hash29, free);
     int id_len = 0;
 
-    while (fgets(str, BUFFER_SIZE, entries_file))
+    rewind(stdin);
+    while (fgets(str, BUFFER_SIZE, stdin))
     {
         for (ch = str; *ch != ','; ch++)
         {
             id_len++;
         }
 
-        entry new_entry = entry_read(entries_file, id_len, num_battles);
+        entry new_entry = entry_read(str, id_len, num_battles);
         player *new_player = player_create(new_entry.distribution);
         gmap_put(player_map, new_entry.id, new_player);
 
@@ -174,15 +172,24 @@ int main(int argc, char *argv[])
     char *p1_str = malloc(sizeof(p1_str));
     char *p2_str = malloc(sizeof(p2_str));
 
+    rewind(matchups_file);
     int scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
+    int curr_match = 0;
     for (int i = 0; scan != EOF; i++)
     {
-        match new_match = {p1_str, p2_str};
-        matches[i] = new_match;
+        char *p1_id = malloc(sizeof(char *));
+        strcpy(p1_id, p1_str);
+        char *p2_id = malloc(sizeof(char *));
+        strcpy(p2_id, p2_str);
+
+        match new_match = {p1_id, p2_id};
+        matches[curr_match] = new_match;
+        curr_match++;
+
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
 
-    fclose(entries_file);
+    // fclose(entries_file);
     fclose(matchups_file);
 
 
@@ -206,8 +213,8 @@ int main(int argc, char *argv[])
             }
             else
             {
-                p1_score += battle_values[battle] / 2;
-                p2_score += battle_values[battle] / 2;
+                p1_score += (double)battle_values[battle] / 2;
+                p2_score += (double)battle_values[battle] / 2;
             }
         }
         player1->score += p1_score;
@@ -221,6 +228,9 @@ int main(int argc, char *argv[])
         {
             player2->wins++;
         }
+
+        player1->battles++;
+        player2->battles++;
     }
 
     const void **player_keys = gmap_keys(player_map);
@@ -231,7 +241,7 @@ int main(int argc, char *argv[])
         for (int key = 0; key < num_entries; key++)
         {
             player *pl = gmap_get(player_map, player_keys[key]);
-            printf("%lf.3f %p\n", pl->wins / num_battles, player_keys[key]);
+            printf("%.3lf %s\n", pl->wins / pl->battles, (char *)player_keys[key]);
         }
     }
     else if (strcmp(argv[2], "score") == 0)
@@ -240,7 +250,7 @@ int main(int argc, char *argv[])
         for (int key = 0; key < num_entries; key++)
         {
             player *pl = gmap_get(player_map, player_keys[key]);
-            printf("%lf.3f %p\n", pl->score / num_battles, player_keys[key]);
+            printf("%.3lf %s\n", pl->score / pl->battles, (char *)player_keys[key]);
         }
     }
     else
