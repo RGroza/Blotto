@@ -201,12 +201,8 @@ int main(int argc, char *argv[])
     // Playing Blotto matches
     for (int i = 0; i < num_matches; i++)
     {
-        const void *p1_key = matches[i].p1_id;
-        const void *p2_key = matches[i].p2_id;
-        // printf("%s\n", (char *)p1_key);
-        // printf("%s\n", (char *)p2_key);
-        player *player1 = gmap_get(player_map, p1_key);
-        player *player2 = gmap_get(player_map, p2_key);
+        player *player1 = gmap_get(player_map, matches[i].p1_id);
+        player *player2 = gmap_get(player_map, matches[i].p2_id);
 
         if (player1 == NULL || player2 == NULL)
         {
@@ -220,16 +216,16 @@ int main(int argc, char *argv[])
         {
             if (player1->distribution[battle] > player2->distribution[battle])
             {
-                p1_score += battle_values[battle];
+                p1_score += (double)battle_values[battle];
             }
             else if (player1->distribution[battle] < player2->distribution[battle])
             {
-                p2_score += battle_values[battle];
+                p2_score += (double)battle_values[battle];
             }
             else
             {
-                p1_score += (double)battle_values[battle] / 2;
-                p2_score += (double)battle_values[battle] / 2;
+                p1_score += (double)battle_values[battle] / 2.0;
+                p2_score += (double)battle_values[battle] / 2.0;
             }
         }
         player1->score += p1_score;
@@ -252,11 +248,13 @@ int main(int argc, char *argv[])
     // Retreive player keys, sort, and print out results
     const void **player_keys = gmap_keys(player_map);
 
+    /*
     printf("keys:\n");
     for (int i = 0; i < num_entries; i++)
     {
         printf("%s\n", (char *)player_keys[i]);
     }
+    */
 
     if (strcmp(argv[2], "win") == 0)
     {
@@ -264,7 +262,19 @@ int main(int argc, char *argv[])
         for (int key = 0; key < num_entries; key++)
         {
             player *pl = gmap_get(player_map, player_keys[key]);
-            printf("%.3lf %s\n", pl->wins / pl->battles, (char *)player_keys[key]);
+
+            double result = pl->wins / (double)pl->battles;
+            char *padding = "";
+            if (result < 10.0)
+            {
+                padding = "  ";
+            }
+            else if (result < 100.0)
+            {
+                padding = " ";
+            }
+
+            printf("%s%.3lf %s\n", padding, result, (char *)player_keys[key]);
         }
     }
     else if (strcmp(argv[2], "score") == 0)
@@ -273,7 +283,19 @@ int main(int argc, char *argv[])
         for (int key = 0; key < num_entries; key++)
         {
             player *pl = gmap_get(player_map, player_keys[key]);
-            printf("%.3lf %s\n", pl->score / pl->battles, (char *)player_keys[key]);
+
+            double result = pl->score / (double)pl->battles;
+            char *padding = "";
+            if (result < 10.0)
+            {
+                padding = "  ";
+            }
+            else if (result < 100.0)
+            {
+                padding = " ";
+            }
+
+            printf("%s%.3lf %s\n", padding, result, (char *)player_keys[key]);
         }
     }
     else
