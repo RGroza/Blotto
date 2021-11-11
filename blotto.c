@@ -20,6 +20,7 @@ typedef struct _player
 } player;
 
 #define BUFFER_SIZE 1000
+#define MAX_ID_LEN 31
 
 
 player *player_create(int *dist)
@@ -110,57 +111,30 @@ int main(int argc, char *argv[])
         battle_values[i] = atoi(argv[i + 3]);
     }
 
-    // Reading over file to determine total number of entries and checking number of battlefields in each entry
-    char str[BUFFER_SIZE];
-    char *ch;
-
-    int num_entries = 0;
-    int curr_battle = 0;
-
-    while (fgets(str, BUFFER_SIZE, stdin))
-    {
-        for (ch = str; *ch != '\0'; ch++)
-        {
-            if (*ch == ',')
-            {
-                curr_battle++;
-            }
-        }
-        num_entries++;
-
-        if (num_entries > 0)
-        {
-            // if (curr_battle != num_battles) // Mismatch in number of battlefields, exit
-            // {
-            //     fprintf(stderr, "Blotto: Mismatched number of battlefields in file\n");
-            //     return 0;
-            // }
-        }
-        curr_battle = 0;
-    }
-
 
     // Creating map and reading over file to add entries to hash table
     gmap *player_map = gmap_create(duplicate, compare_keys, hash29, free);
-    int id_len = 0;
+    entry new_entry = entry_read(stdin, MAX_ID_LEN, num_battles);
+    int num_entries = 0;
 
-    rewind(stdin);
-    while (fgets(str, BUFFER_SIZE, stdin))
+    do
     {
-        for (ch = str; *ch != ','; ch++)
+        if (new_entry.id == NULL || new_entry.distribution == NULL)
         {
-            id_len++;
+            fprintf(stderr, "Blotto: invlaid entry");
+            return 0;
         }
 
-        entry new_entry = entry_read(str, id_len, num_battles);
         player *new_player = player_create(new_entry.distribution);
         gmap_put(player_map, new_entry.id, new_player);
+        num_entries++;
 
-        id_len = 0;
-    }
+        new_entry = entry_read(stdin, MAX_ID_LEN, num_battles);
+    } while (new_entry.id[0] != '\0');
 
 
     // Reading matchups
+    char str[BUFFER_SIZE];
     int num_matches = 0;
 
     while (fgets(str, BUFFER_SIZE, matchups_file))
@@ -199,6 +173,12 @@ int main(int argc, char *argv[])
     {
         player *player1 = gmap_get(player_map, matches[i].p1_id);
         player *player2 = gmap_get(player_map, matches[i].p2_id);
+
+        if (player1 == NULL || player2 == NULL)
+        {
+            fprintf(stderr, "Blotto: player not found");
+            return 0;
+        }
 
         double p1_score = 0;
         double p2_score = 0;
