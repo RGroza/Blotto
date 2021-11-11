@@ -16,7 +16,7 @@ typedef struct _player
     int *distribution;
     double score;
     double wins;
-    int battles;
+    double battles;
 } player;
 
 #define BUFFER_SIZE 1000
@@ -189,6 +189,8 @@ int main(int argc, char *argv[])
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
 
+    free(p1_str);
+    free(p2_str);
     fclose(matchups_file);
 
 
