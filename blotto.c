@@ -50,29 +50,30 @@ void player_destroy(player *pl)
 
 int player_comp_wins(const void *player_1, const void *player_2)
 {
-    player *pl_1 = gmap_get(player_map, player_1);
-    player *pl_2 = gmap_get(player_map, player_2);
-    printf("%s\n", (char *)player_1);
-    printf("%s\n", (char *)player_2);
+    player *pl_1 = gmap_get(player_map, *(char **)player_1);
+    player *pl_2 = gmap_get(player_map, *(char **)player_2);
+    // printf("%s\n", (char *)player_1);
+    // printf("%s\n", (char *)player_2);
 
     if (pl_1 == NULL || pl_2 == NULL)
     {
+        fprintf(stderr, "Blotto: invalid comparsion of players");
         return 0;
     }
 
     if (pl_1->wins / pl_1->battles - pl_2->wins / pl_2->battles > 0)
     {
-        return 1;
+        return -1;
     }
     else if (pl_1->wins / pl_1->battles - pl_2->wins / pl_2->battles < 0)
     {
-        return -1;
+        return 1;
     }
     else
     {
         if (strcmp((char *)player_1, (char *)player_2) < 0)
         {
-            return 1;
+            return -1;
         }
         else
         {
@@ -84,29 +85,30 @@ int player_comp_wins(const void *player_1, const void *player_2)
 
 int player_comp_scores(const void *player_1, const void *player_2)
 {
-    player *pl_1 = gmap_get(player_map, player_1);
-    player *pl_2 = gmap_get(player_map, player_2);
-    printf("%s\n", (char *)player_1);
-    printf("%s\n", (char *)player_2);
+    player *pl_1 = gmap_get(player_map, *(char **)player_1);
+    player *pl_2 = gmap_get(player_map, *(char **)player_2);
+    // printf("%s\n", (char *)player_1);
+    // printf("%s\n", (char *)player_2);
 
     if (pl_1 == NULL || pl_2 == NULL)
     {
+        fprintf(stderr, "Blotto: invalid comparsion of players");
         return 0;
     }
 
     if (pl_1->score / pl_1->battles - pl_2->score / pl_2->battles > 0)
     {
-        return 1;
+        return -1;
     }
     else if (pl_1->score / pl_1->battles - pl_2->score / pl_2->battles < 0)
     {
-        return -1;
+        return 1;
     }
     else
     {
         if (strcmp((char *)player_1, (char *)player_2) < 0)
         {
-            return 1;
+            return -1;
         }
         else
         {
