@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Blotto",
-            "args": ["Tests/round_robin_3.in", "win", "1", "2", "3", "4", "<Tests/example_3.in"],
+            "args": ["Tests/round_robin_25_5.in", "win", "1", "2", "3", "4", "5", "<Tests/blotto_25_5.in"],//["Tests/round_robin_3.in", "win", "1", "2", "3", "4", "<Tests/example_3.in"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

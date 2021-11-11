@@ -51,11 +51,11 @@ int player_comp_wins(const void *player_1, const void *player_2)
     player *pl_1 = (player *) player_1;
     player *pl_2 = (player *) player_2;
 
-    if (pl_1->wins - pl_2->wins > 0)
+    if (pl_1->wins / pl_1->battles - pl_2->wins / pl_2->battles > 0)
     {
         return 1;
     }
-    else if (pl_1->wins - pl_2->wins < 0)
+    else if (pl_1->wins / pl_1->battles - pl_2->wins / pl_2->battles < 0)
     {
         return -1;
     }
@@ -71,11 +71,11 @@ int player_comp_scores(const void *player_1, const void *player_2)
     player *pl_1 = (player *) player_1;
     player *pl_2 = (player *) player_2;
 
-    if (pl_1->score - pl_2->score > 0)
+    if (pl_1->score / pl_1->battles - pl_2->score / pl_2->battles > 0)
     {
         return 1;
     }
-    else if (pl_1->score - pl_2->score < 0)
+    else if (pl_1->score / pl_1->battles - pl_2->score / pl_2->battles < 0)
     {
         return -1;
     }
@@ -189,7 +189,6 @@ int main(int argc, char *argv[])
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
 
-    // fclose(entries_file);
     fclose(matchups_file);
 
 
@@ -233,6 +232,8 @@ int main(int argc, char *argv[])
         player2->battles++;
     }
 
+
+    // Retreive player keys, sort, and print out results
     const void **player_keys = gmap_keys(player_map);
 
     if (strcmp(argv[2], "win") == 0)
