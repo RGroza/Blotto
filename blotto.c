@@ -21,6 +21,7 @@ typedef struct _player
 
 #define BUFFER_SIZE 1000
 #define MAX_ID_LEN 31
+gmap *player_map;
 
 
 player *player_create(int *dist)
@@ -49,8 +50,15 @@ void player_destroy(player *pl)
 
 int player_comp_wins(const void *player_1, const void *player_2)
 {
-    player *pl_1 = (player *) player_1;
-    player *pl_2 = (player *) player_2;
+    player *pl_1 = gmap_get(player_map, player_1);
+    player *pl_2 = gmap_get(player_map, player_2);
+    printf("%s\n", (char *)player_1);
+    printf("%s\n", (char *)player_2);
+
+    if (pl_1 == NULL || pl_2 == NULL)
+    {
+        return 0;
+    }
 
     if (pl_1->wins / pl_1->battles - pl_2->wins / pl_2->battles > 0)
     {
@@ -62,15 +70,29 @@ int player_comp_wins(const void *player_1, const void *player_2)
     }
     else
     {
-        return 0;
+        if (strcmp((char *)player_1, (char *)player_2) < 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
 
 
 int player_comp_scores(const void *player_1, const void *player_2)
 {
-    player *pl_1 = (player *) player_1;
-    player *pl_2 = (player *) player_2;
+    player *pl_1 = gmap_get(player_map, player_1);
+    player *pl_2 = gmap_get(player_map, player_2);
+    printf("%s\n", (char *)player_1);
+    printf("%s\n", (char *)player_2);
+
+    if (pl_1 == NULL || pl_2 == NULL)
+    {
+        return 0;
+    }
 
     if (pl_1->score / pl_1->battles - pl_2->score / pl_2->battles > 0)
     {
@@ -82,7 +104,14 @@ int player_comp_scores(const void *player_1, const void *player_2)
     }
     else
     {
-        return 0;
+        if (strcmp((char *)player_1, (char *)player_2) < 0)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
 
@@ -113,7 +142,7 @@ int main(int argc, char *argv[])
 
 
     // Creating map and reading over file to add entries to hash table
-    gmap *player_map = gmap_create(duplicate, compare_keys, hash29, free);
+    player_map = gmap_create(duplicate, compare_keys, hash29, free);
     entry new_entry = entry_read(stdin, MAX_ID_LEN, num_battles);
     int num_entries = 0;
 
@@ -126,6 +155,7 @@ int main(int argc, char *argv[])
         }
 
         player *new_player = player_create(new_entry.distribution);
+        // printf("%s\n", new_entry.id);
         gmap_put(player_map, new_entry.id, new_player);
         num_entries++;
 
@@ -148,8 +178,7 @@ int main(int argc, char *argv[])
 
     rewind(matchups_file);
     int scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
-    int curr_match = 0;
-    for (int i = 0; scan != EOF; i++)
+    for (int i = 0; i < num_matches; i++)
     {
         char *p1_id = malloc(sizeof(char *));
         strcpy(p1_id, p1_str);
@@ -157,8 +186,7 @@ int main(int argc, char *argv[])
         strcpy(p2_id, p2_str);
 
         match new_match = {p1_id, p2_id};
-        matches[curr_match] = new_match;
-        curr_match++;
+        matches[i] = new_match;
 
         scan = fscanf(matchups_file, "%s %s\n", p1_str, p2_str);
     }
@@ -171,8 +199,12 @@ int main(int argc, char *argv[])
     // Playing Blotto matches
     for (int i = 0; i < num_matches; i++)
     {
-        player *player1 = gmap_get(player_map, matches[i].p1_id);
-        player *player2 = gmap_get(player_map, matches[i].p2_id);
+        const void *p1_key = matches[i].p1_id;
+        const void *p2_key = matches[i].p2_id;
+        // printf("%s\n", (char *)p1_key);
+        // printf("%s\n", (char *)p2_key);
+        player *player1 = gmap_get(player_map, p1_key);
+        player *player2 = gmap_get(player_map, p2_key);
 
         if (player1 == NULL || player2 == NULL)
         {
@@ -217,6 +249,12 @@ int main(int argc, char *argv[])
 
     // Retreive player keys, sort, and print out results
     const void **player_keys = gmap_keys(player_map);
+
+    printf("keys:\n");
+    for (int i = 0; i < num_entries; i++)
+    {
+        printf("%s\n", (char *)player_keys[i]);
+    }
 
     if (strcmp(argv[2], "win") == 0)
     {
