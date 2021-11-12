@@ -184,7 +184,10 @@ void *gmap_get(gmap *m, const void *key)
         return NULL;
     }
 
-    gmap_node *n = gmap_table_find_key(m, key)[1];
+    gmap_node **targets = gmap_table_find_key(m, key);
+    gmap_node *n = targets[1];
+    free(targets);
+
     if (n != NULL)
     {
         return n->value;
@@ -214,6 +217,8 @@ void *gmap_put(gmap *m, const void *key, void *value)
     }
     else
     {
+        free(targets);
+
         void *copy = malloc(sizeof(key));
 
         if (copy != NULL)
@@ -236,6 +241,7 @@ void *gmap_put(gmap *m, const void *key, void *value)
             }
             else
             {
+                free(n);
                 m->f(copy);
                 return "error";
             }
