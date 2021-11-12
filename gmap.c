@@ -169,8 +169,8 @@ bool gmap_contains_key(const gmap *m, const void *key)
 
     gmap_node **targets = gmap_table_find_key(m, key);
     gmap_node *curr = targets[1];
-    targets[0] = NULL;
-    targets[1] = NULL;
+    // targets[0] = NULL;
+    // targets[1] = NULL;
     free(targets);
 
     return curr != NULL;
@@ -203,11 +203,13 @@ void *gmap_put(gmap *m, const void *key, void *value)
         return false;
     }
 
-    gmap_node *target = gmap_table_find_key(m, key)[1];
-    if (target != NULL)
+    gmap_node **targets = gmap_table_find_key(m, key);
+    if (targets[1] != NULL)
     {
-        void *old_value = target->value;
-        target->value = value;
+        void *old_value = targets[1]->value;
+        targets[1]->value = value;
+
+        free(targets);
         return old_value;
     }
     else
@@ -237,16 +239,12 @@ void *gmap_put(gmap *m, const void *key, void *value)
                 m->f(copy);
                 return "error";
             }
-
-            free(n);
         }
         else
         {
             return "error";
         }
     }
-
-    free(target);
 }
 
 

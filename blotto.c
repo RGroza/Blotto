@@ -295,4 +295,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Blotto: invalid argument (not win or score)\n");
         return 0;
     }
+
+    free(player_keys);
+    gmap_destroy(player_map);
 }
