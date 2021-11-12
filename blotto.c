@@ -248,14 +248,6 @@ int main(int argc, char *argv[])
     // Retreive player keys, sort, and print out results
     const void **player_keys = gmap_keys(player_map);
 
-    /*
-    printf("keys:\n");
-    for (int i = 0; i < num_entries; i++)
-    {
-        printf("%s\n", (char *)player_keys[i]);
-    }
-    */
-
     if (strcmp(argv[2], "win") == 0)
     {
         qsort(player_keys, num_entries, sizeof(*player_keys), player_comp_wins);
