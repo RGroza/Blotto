@@ -219,32 +219,26 @@ void *gmap_put(gmap *m, const void *key, void *value)
     {
         free(targets);
 
-        void *copy = malloc(sizeof(key));
+        void *copy;
 
-        if (copy != NULL)
+        copy = m->cp(key);
+
+        if (m->size >= m->num_chains)
         {
-            copy = m->cp(key);
+            gmap_embiggen(m, m->num_chains * TABLESIZE_MULTIPLIER);
+        }
 
-            if (m->size >= m->num_chains)
-            {
-                gmap_embiggen(m, m->num_chains * TABLESIZE_MULTIPLIER);
-            }
+        gmap_node *n = malloc(sizeof(gmap_node));
 
-            gmap_node *n = malloc(sizeof(gmap_node));
-            if (n != NULL)
-            {
-                n->key = copy;
-                n->value = value;
-                gmap_table_add(m->table, n, m->hash, m->num_chains);
-                m->size++;
-                return NULL;
-            }
-            else
-            {
-                free(n);
-                m->f(copy);
-                return "error";
-            }
+        if (n != NULL)
+        {
+            n->key = copy;
+            n->value = value;
+
+            gmap_table_add(m->table, n, m->hash, m->num_chains);
+            m->size++;
+
+            return NULL;
         }
         else
         {
