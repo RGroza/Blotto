@@ -1,1 +1,5 @@
-==4651== error calling PR_SET_PTRACER, vgdb might block
+==1491== error calling PR_SET_PTRACER, vgdb might block
+==1491== 96 (48 direct, 48 indirect) bytes in 1 blocks are definitely lost in loss record 9 of 10
+==1491==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==1491==    by 0x1099DA: main (blotto.c:177)
+==1491== 

@@ -36,15 +36,14 @@ player *player_create(int *dist)
 }
 
 
-void player_destroy(player *pl)
+void matches_destroy(match *matches, size_t num_matches)
 {
-    if (pl != NULL)
+    for (int i = 0; i < num_matches; i++)
     {
-        free(pl->distribution);
-        pl->distribution = NULL;
-        free(pl);
-        pl = NULL;
+        free(matches[i].p1_id);
+        free(matches[i].p2_id);
     }
+    free(matches);
 }
 
 
@@ -157,12 +156,13 @@ int main(int argc, char *argv[])
         }
 
         player *new_player = player_create(new_entry.distribution);
-        // printf("%s\n", new_entry.id);
         gmap_put(player_map, new_entry.id, new_player);
+        free(new_entry.id);
         num_entries++;
 
         new_entry = entry_read(stdin, MAX_ID_LEN, num_battles);
     } while (new_entry.id[0] != '\0');
+    free(new_entry.id);
 
 
     // Reading matchups
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
 
         if (player1 == NULL || player2 == NULL)
         {
-            fprintf(stderr, "Blotto: player not found");
+            fprintf(stderr, "Blotto: player not found\n");
             return 0;
         }
 
@@ -243,6 +243,7 @@ int main(int argc, char *argv[])
         player1->battles++;
         player2->battles++;
     }
+    matches_destroy(matches, num_matches);
 
 
     // Retreive player keys, sort, and print out results
@@ -292,6 +293,7 @@ int main(int argc, char *argv[])
     }
     else
     {
+        free(player_keys);
         fprintf(stderr, "Blotto: invalid argument (not win or score)\n");
         return 0;
     }
