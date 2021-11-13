@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
         if (player1 == NULL || player2 == NULL)
         {
             fprintf(stderr, "Blotto: player not found\n");
-            return 0;
+            continue;
         }
 
         double p1_score = 0;
@@ -223,16 +223,16 @@ int main(int argc, char *argv[])
         {
             if (player1->distribution[battle] > player2->distribution[battle])
             {
-                p1_score += (double)battle_values[battle];
+                p1_score += (double) battle_values[battle];
             }
             else if (player1->distribution[battle] < player2->distribution[battle])
             {
-                p2_score += (double)battle_values[battle];
+                p2_score += (double) battle_values[battle];
             }
             else
             {
-                p1_score += (double)battle_values[battle] / 2.0;
-                p2_score += (double)battle_values[battle] / 2.0;
+                p1_score += ((double) battle_values[battle]) / 2.0;
+                p2_score += ((double) battle_values[battle]) / 2.0;
             }
         }
         player1->score += p1_score;
@@ -245,6 +245,11 @@ int main(int argc, char *argv[])
         else if (p2_score > p1_score)
         {
             player2->wins++;
+        }
+        else
+        {
+            player1->wins += 0.5;
+            player2->wins += 0.5;
         }
 
         player1->battles++;
