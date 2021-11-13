@@ -27,14 +27,6 @@ struct _gmap
     void (*f)(void *);
 };
 
-// typedef struct _player
-// {
-//     int *distribution;
-//     double score;
-//     double wins;
-//     double battles;
-// } player; 
-
 
 gmap *gmap_create(void *(*cp)(const void *), int (*comp)(const void *, const void *), size_t (*h)(const void *s), void (*f)(void *));
 size_t gmap_size(const gmap *m);
@@ -45,7 +37,6 @@ void *gmap_get(gmap *m, const void *key);
 void gmap_for_each(gmap *m, void (*f)(const void *, void *, void *), void *arg);
 const void **gmap_keys(gmap *m);
 void gmap_destroy(gmap *m);
-// void player_destroy(player *pl);
 
 size_t gmap_compute_index(const void *key, size_t (*hash)(const void *), size_t num_chains);
 gmap_node **gmap_table_find_key(const gmap *m, const void *key);
@@ -287,7 +278,6 @@ void gmap_destroy(gmap *m)
         while (curr != NULL)
         {
             m->f(curr->key);
-            // player_destroy(curr->value);
 
             gmap_node *next = curr->next;
 
@@ -300,16 +290,6 @@ void gmap_destroy(gmap *m)
     free(m->table);
     free(m);
 }
-
-
-// void player_destroy(player *pl)
-// {
-//     if (pl != NULL)
-//     {
-//         free(pl->distribution);
-//         free(pl);
-//     }
-// }
 
 
 void *gmap_remove(gmap *m, const void *key)

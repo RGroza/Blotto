@@ -36,6 +36,17 @@ player *player_create(int *dist)
 }
 
 
+void player_destroy(const void *key, void *value, void *arg)
+{
+    player *pl = (player *)value;
+    if (pl != NULL)
+    {
+        free(pl->distribution);
+        free(pl);
+    }
+}
+
+
 void matches_destroy(match *matches, size_t num_matches)
 {
     for (int i = 0; i < num_matches; i++)
@@ -51,8 +62,6 @@ int player_comp_wins(const void *player_1, const void *player_2)
 {
     player *pl_1 = gmap_get(player_map, *(char **)player_1);
     player *pl_2 = gmap_get(player_map, *(char **)player_2);
-    // printf("%s\n", (char *)player_1);
-    // printf("%s\n", (char *)player_2);
 
     if (pl_1 == NULL || pl_2 == NULL)
     {
@@ -86,8 +95,6 @@ int player_comp_scores(const void *player_1, const void *player_2)
 {
     player *pl_1 = gmap_get(player_map, *(char **)player_1);
     player *pl_2 = gmap_get(player_map, *(char **)player_2);
-    // printf("%s\n", (char *)player_1);
-    // printf("%s\n", (char *)player_2);
 
     if (pl_1 == NULL || pl_2 == NULL)
     {
@@ -299,5 +306,6 @@ int main(int argc, char *argv[])
     }
 
     free(player_keys);
+    gmap_for_each(player_map, player_destroy, NULL);
     gmap_destroy(player_map);
 }
