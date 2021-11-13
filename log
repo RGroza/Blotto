@@ -1,0 +1,37 @@
+ESTIMATE of time to complete assignment: 16.5 hours
+
+      Time     Time
+Date  Started  Spent Work completed
+----  -------  ----  --------------
+11/7  8:00pm   3:00  Wrote implementations for most of the functions of gmap.c
+11/8  7:00pm   2:00  Began debugging test cases manually for gmap.c from
+                     gmap_unit.c. Started implementing blotto.c for reading
+                     entries and matches.
+11/9  4:00pm   3:00  Finished immplementing blotto logic for playing matches,
+                     determining scores/wins and using qsort to sort the 
+                     player keys by socres/wins.
+11/10 6:00pm   2:00  Starting debugging issues in blotto with reading entries
+                     and incorreclty adding them to the hash table. Ran into
+                     issues with qsort not sorting keys for larger examples.
+10/11 9:00pm   4:30  Worked on debugging valgrind memory leaks and
+                     inadvertent segmentation faults. Continued debugging the
+                     issue with qsort not being able to sort properly (turned
+                     out to be a pointer mis-casting issue).
+10/12 7:00pm   2:00  Fixed the remaining memory leaks. Finally debugged issue
+                     with blotto.c slighly miscalculating average wins for
+                     players.
+
+               ----
+               16:30  TOTAL time spent
+
+While the implementations of gmap.c were relatively straightforward, the blotto
+program was significanlty more difficult to implement, since it involved figuring
+out how to properly interface with the gmap hash table in order to accomplish the
+task.
+
+I initially decided to modify entry.c to accept strings of the lines of the file,
+before realising that this was unnecessary since stdin can be inputted as a file.
+
+I struggled the most with figuring out why qsort was not sorting keys based on the scores/wins. It turned out to be an improper pointer conversion from *void to *char using *(char **) typecast instead of just (char *).
+
+I also struggled with resolving valgrind memory leak issues, as I would sometimes make a fatal error and cause most of the test cases to segmentation fault.
