@@ -79,7 +79,11 @@ int player_comp_wins(const void *player_1, const void *player_2)
     }
     else
     {
-        if (strcmp((char *)player_1, (char *)player_2) < 0)
+        if (strcmp(*(char **)player_1, *(char **)player_2) > 0)
+        {
+            return 1;
+        }
+        else if (strcmp(*(char **)player_1, *(char **)player_2) < 0)
         {
             return -1;
         }
@@ -112,7 +116,11 @@ int player_comp_scores(const void *player_1, const void *player_2)
     }
     else
     {
-        if (strcmp((char *)player_1, (char *)player_2) < 0)
+        if (strcmp(*(char **)player_1, *(char **)player_2) > 0)
+        {
+            return 1;
+        }
+        else if (strcmp(*(char **)player_1, *(char **)player_2) < 0)
         {
             return -1;
         }
